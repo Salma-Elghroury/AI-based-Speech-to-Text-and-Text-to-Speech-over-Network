@@ -114,5 +114,3 @@ src/
   receiver.js       Receiver-side script
 images/             Project images
 ```
-
-Design reference: https://dribbble.com/shots/27362551-Supporty-AI-Website
