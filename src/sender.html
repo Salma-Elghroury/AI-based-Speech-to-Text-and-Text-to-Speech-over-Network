@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f7f2">
+    <title>Record audio — Relay</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <a class="brand" href="../index.html" aria-label="Relay home">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 32 32"><path d="M7 16h18M18 8l8 8-8 8"/></svg>
+                </span>
+                <span>relay<span class="brand-dot">.</span></span>
+            </a>
+        </header>
+
+        <main class="workflow-main">
+            <a class="back-link" href="../index.html"><span aria-hidden="true">←</span> All message types</a>
+            <section class="workflow-heading">
+                <p class="eyebrow"><span class="eyebrow-line"></span> AUDIO MESSAGE</p>
+                <h1>Say it in your<br><span class="text-accent">own words.</span></h1>
+                <p class="hero-description">Record a message and we’ll turn your words into text. Review it before you send.</p>
+            </section>
+
+            <section class="record-card" aria-labelledby="record-title">
+                <div class="record-card-top">
+                    <div>
+                        <p class="section-kicker">YOUR RECORDING</p>
+                        <h2 id="record-title">A moment to say it</h2>
+                    </div>
+                    <span class="record-time" id="recordTime">00:00</span>
+                </div>
+                <div class="waveform" id="waveform" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <p class="record-hint" id="recordHint">Find a quiet moment, then press record.</p>
+                <button class="button button-primary record-button" id="recordButton" type="button">
+                    <span class="record-button-icon" aria-hidden="true"></span>
+                    <span id="recordButtonText">Start recording</span>
+                </button>
+                <p class="transcript-preview-label">LIVE TRANSCRIPTION</p>
+                <p class="transcript-preview" id="transcriptPreview" aria-live="polite">Your words will appear here as you speak.</p>
+            </section>
+        </main>
+    </div>
+
+    <dialog class="review-dialog" id="reviewDialog" aria-labelledby="reviewTitle">
+        <form class="review-content" id="reviewForm">
+            <button class="dialog-close" id="closeDialog" type="button" aria-label="Close review">×</button>
+            <p class="eyebrow"><span class="eyebrow-line"></span> READY WHEN YOU ARE</p>
+            <h2 id="reviewTitle">Review your<br><span class="text-accent">message.</span></h2>
+            <p class="dialog-description">Listen back and make any edits to the transcript before sending.</p>
+            <audio class="audio-preview" id="audioPreview" controls></audio>
+            <label class="field-label" for="recognizedText">YOUR TRANSCRIPT</label>
+            <textarea id="recognizedText" class="transcript-input" rows="5" placeholder="Your transcript will appear here. You can also type it in."></textarea>
+            <p class="dialog-error" id="dialogError" role="alert"></p>
+            <div class="dialog-actions">
+                <button class="button button-secondary" id="discardButton" type="button">Discard</button>
+                <button class="button button-primary" id="sendAudioButton" type="submit">
+                    Send message <span aria-hidden="true">↗</span>
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+    <script type="module" src="./sender.js"></script>
+</body>
+</html>

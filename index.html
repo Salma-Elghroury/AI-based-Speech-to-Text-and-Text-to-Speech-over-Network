@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f7f2">
+    <title>Relay — Share a voice or image</title>
+    <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <a class="brand" href="./index.html" aria-label="Relay home">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 32 32"><path d="M7 16h18M18 8l8 8-8 8"/></svg>
+                </span>
+                <span>relay<span class="brand-dot">.</span></span>
+            </a>
+        </header>
+
+        <main class="home-main">
+            <section class="hero-copy" aria-labelledby="page-title">
+                <p class="eyebrow"><span class="eyebrow-line"></span> YOUR MESSAGE, YOUR WAY</p>
+                <h1 id="page-title">Share it the way<br>you <span class="text-accent">feel it.</span></h1>
+                <p class="hero-description">Send a voice message or an image in just a few moments. Choose how you’d like to start.</p>
+            </section>
+
+            <section class="choice-grid" aria-label="Choose what to send">
+                <a class="choice-card audio-choice" href="./src/sender.html">
+                    <span class="choice-icon audio-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48"><path d="M24 29a7 7 0 0 0 7-7V13a7 7 0 0 0-14 0v9a7 7 0 0 0 7 7Z"/><path d="M12 22a12 12 0 0 0 24 0M24 34v7m-7 0h14"/></svg>
+                    </span>
+                    <span class="choice-label">01 / VOICE</span>
+                    <span class="choice-title">Send audio</span>
+                    <span class="choice-description">Record your voice, review the transcript, and send when it feels right.</span>
+                    <span class="choice-link">Start recording <span aria-hidden="true">↗</span></span>
+                    <span class="card-decoration audio-decoration" aria-hidden="true"></span>
+                </a>
+
+                <a class="choice-card image-choice" href="./src/image.html">
+                    <span class="choice-icon image-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48"><rect x="8" y="10" width="32" height="28" rx="5"/><circle cx="19" cy="20" r="3"/><path d="m10 33 9-9 7 7 5-5 7 7"/></svg>
+                    </span>
+                    <span class="choice-label">02 / VISUAL</span>
+                    <span class="choice-title">Send an image</span>
+                    <span class="choice-description">Choose an image from your device and share it over the network.</span>
+                    <span class="choice-link">Choose an image <span aria-hidden="true">↗</span></span>
+                    <span class="card-decoration image-decoration" aria-hidden="true"></span>
+                </a>
+            </section>
+
+        </main>
+    </div>
+</body>
+</html>
