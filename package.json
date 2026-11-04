@@ -1,0 +1,24 @@
+{
+  "name": "ai-based-speech-to-text-and-text-to-speech-over-network",
+  "version": "1.0.0",
+  "description": "",
+  "main": "receiver.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Salma-Elghroury/AI-based-Speech-to-Text-and-Text-to-Speech-over-Network.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Salma-Elghroury/AI-based-Speech-to-Text-and-Text-to-Speech-over-Network/issues"
+  },
+  "homepage": "https://github.com/Salma-Elghroury/AI-based-Speech-to-Text-and-Text-to-Speech-over-Network#readme",
+  "dependencies": {
+    "ws": "^8.22.1"
+  }
+}
