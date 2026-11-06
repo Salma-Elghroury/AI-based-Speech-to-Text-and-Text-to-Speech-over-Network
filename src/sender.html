@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f5f7f2">
-    <title>Record audio — Relay</title>
+    <title>Send a message — Relay</title>
     <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -21,9 +21,9 @@
         <main class="workflow-main">
             <a class="back-link" href="../index.html"><span aria-hidden="true">←</span> All message types</a>
             <section class="workflow-heading">
-                <p class="eyebrow"><span class="eyebrow-line"></span> AUDIO MESSAGE</p>
-                <h1>Say it in your<br><span class="text-accent">own words.</span></h1>
-                <p class="hero-description">Record a message and we’ll turn your words into text. Review it before you send.</p>
+                <p class="eyebrow"><span class="eyebrow-line"></span> YOUR MESSAGE</p>
+                <h1>Say it, or show it.<br><span class="text-accent">Your choice.</span></h1>
+                <p class="hero-description">Record a voice message or choose an image, then send it over the network.</p>
             </section>
 
             <section class="record-card" aria-labelledby="record-title">
@@ -44,6 +44,38 @@
                 </button>
                 <p class="transcript-preview-label">LIVE TRANSCRIPTION</p>
                 <p class="transcript-preview" id="transcriptPreview" aria-live="polite">Your words will appear here as you speak.</p>
+            </section>
+
+            <section class="record-card image-card" aria-labelledby="imageTitle">
+                <div class="record-card-top">
+                    <div>
+                        <p class="section-kicker">YOUR IMAGE</p>
+                        <h2 id="imageTitle">A picture says a lot</h2>
+                    </div>
+                    <span class="image-file-type">JPG · PNG · WEBP</span>
+                </div>
+                <input id="imageInput" class="visually-hidden" type="file" accept="image/*">
+                <label class="image-dropzone" id="dropzone" for="imageInput">
+                    <span class="dropzone-placeholder" id="dropzonePlaceholder">
+                        <span class="upload-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48"><path d="M24 32V10m-8 8 8-8 8 8"/><path d="M10 28v9a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3v-9"/></svg>
+                        </span>
+                        <span class="dropzone-title">Drop one image here</span>
+                        <span class="dropzone-subtitle">or <span>browse your files</span></span>
+                    </span>
+                </label>
+                <div class="upload-confirmation" id="uploadConfirmation" role="status" aria-live="polite" hidden>
+                    <span class="upload-confirmation-icon" aria-hidden="true">✓</span>
+                    <span class="upload-confirmation-copy">
+                        <strong>Image added</strong>
+                        <span class="selected-file" id="selectedFile"></span>
+                    </span>
+                    <button class="change-image-button" id="changeImageButton" type="button">Change</button>
+                </div>
+                <p class="dialog-error" id="imageError" role="alert"></p>
+                <button class="button button-primary image-send-button" id="sendImageButton" type="button" disabled>
+                    Send image
+                </button>
             </section>
         </main>
     </div>
@@ -68,5 +100,6 @@
     </dialog>
 
     <script type="module" src="./sender.js"></script>
+    <script type="module" src="./image.js"></script>
 </body>
 </html>
