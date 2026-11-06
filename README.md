@@ -113,7 +113,7 @@ src/
   image.js          Image selection and WebSocket sending
   receiver.html     Receiver page (speech synthesis and image display)
   receiver.js       WebSocket handling, TTS, image rendering, stats
-  sender-common.js  Shared WebSocket and Base64 helpers
+  common.js  Shared WebSocket and Base64 helpers
   styles.css        Shared page styles
   server.js         WebSocket server on port 8080
 images/             Project images

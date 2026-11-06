@@ -91,7 +91,7 @@
                     </div>
                 </div>
                 <div class="received-image-wrap" id="receivedImageWrap" hidden>
-                    <img id="receivedImage" alt="Image received over the network">
+                    <img id="receivedImage">
                     <p class="selected-file" id="receivedImageMeta"></p>
                 </div>
                 <p class="transcript-preview" id="imagePlaceholder">
@@ -110,6 +110,16 @@
                 <ul class="message-log" id="messageLog" aria-live="polite"></ul>
                 <p class="transcript-preview" id="statsDetail">
                     Latency and throughput will appear here as messages arrive.
+                </p>
+                <p class="stats-legend">
+                    <strong>Reading the stats:</strong>
+                    <span class="stats-legend-seg">total received</span> ·
+                    <span class="stats-legend-seg">≈ throughput (KB/s over the sample window)</span> ·
+                    <span class="stats-legend-seg">avg end-to-end latency (ms)</span>.
+                    Each log line reads:
+                    <code>type · filename · size [· chars] · E2E latency</code>.
+                    A <em>clock skew</em> note means the sender and receiver clocks disagree
+                    (usually different machines).
                 </p>
             </section>
         </main>

@@ -670,6 +670,35 @@ h1 {
     border-bottom: 0;
 }
 
+.stats-legend {
+    margin: var(--space-2) 0 0;
+    padding-top: var(--space-2);
+    border-top: 1px dashed var(--line);
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.stats-legend strong {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.stats-legend-seg {
+    color: #566159;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 10.5px;
+}
+
+.stats-legend code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: #eef1ed;
+    color: var(--ink);
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 10.5px;
+}
+
 @media (max-width: 640px) {
     .tts-controls {
         grid-template-columns: 1fr;

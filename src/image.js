@@ -1,4 +1,4 @@
-import { blobToBase64, connectWebSocket } from "./sender-common.js";
+import { blobToBase64, connectWebSocket } from "./common.js";
 
 const socket = connectWebSocket();
 const imageInput = document.getElementById("imageInput");

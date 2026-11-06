@@ -41,18 +41,25 @@ export function base64ToBlobUrl(base64, mimeType) {
     return URL.createObjectURL(new Blob([bytes], { type: mimeType }));
 }
 
-export function formatBytes(base64) {
-    if (!base64) return "0 KB";
-    const approxBytes = Math.floor((base64.length * 3) / 4);
-    if (approxBytes < 1024) return `${approxBytes} B`;
-    if (approxBytes < 1024 * 1024) return `${(approxBytes / 1024).toFixed(1)} KB`;
-    return `${(approxBytes / (1024 * 1024)).toFixed(2)} MB`;
+export function formatBytes(input) {
+    let bytes;
+    if (typeof input === "number") {
+        bytes = input;
+    } else if (typeof input === "string" && input.length > 0) {
+        bytes = Math.floor((input.length * 3) / 4);
+    } else {
+        return "0 KB";
+    }
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
-export function log(text) {
+export function log(listEl, text, maxEntries = 25) {
+    if (!listEl) return;
     const li = document.createElement("li");
     const stamp = new Date().toLocaleTimeString();
     li.textContent = `${stamp} — ${text}`;
-    messageLog.prepend(li);
-    while (messageLog.children.length > 25) messageLog.lastChild.remove();
+    listEl.prepend(li);
+    while (listEl.children.length > maxEntries) listEl.lastChild.remove();
 }

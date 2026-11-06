@@ -1,4 +1,9 @@
-import { connectWebSocket, base64ToDataUrl, base64ToBlobUrl, formatBytes, log } from "./common.js";
+import {
+    connectWebSocket,
+    base64ToBlobUrl,
+    formatBytes,
+    log
+} from "./common.js";
 
 const connectionStatus = document.getElementById("connectionStatus");
 const connectionLabel = document.getElementById("connectionLabel");
@@ -26,7 +31,11 @@ const speechSupported = "speechSynthesis" in window && "SpeechSynthesisUtterance
 
 let currentTranscript = "";
 let currentVoice = null;
+let userChoseVoice = false;
 let lastOriginalAudioUrl = null;
+let lastImageBlobUrl = null;
+
+const LATENCY_SAMPLE_CAP = 200;
 
 const stats = {
     count: 0,
@@ -43,9 +52,9 @@ function setStatus(state, detail) {
     connectionStatus.dataset.state = state;
     connectionLabel.textContent = detail ?? (
         state === "connected" ? "Connected to relay" :
-            state === "connecting" ? "Connecting…" :
-                state === "disconnected" ? "Disconnected — retrying…" :
-                    "Connection error"
+        state === "connecting" ? "Connecting…" :
+        state === "disconnected" ? "Disconnected — retrying…" :
+        "Connection error"
     );
 }
 
@@ -88,18 +97,27 @@ function handleMessage(event) {
     try {
         packet = JSON.parse(event.data);
     } catch {
-        log("Ignored non-JSON message");
+        log(messageLog, "Ignored non-JSON message");
         return;
     }
 
+    const base64 = typeof packet.data === "string" ? packet.data : "";
+    const approxBytes = base64 ? Math.floor((base64.length * 3) / 4) : 0;
+
     stats.count += 1;
-    stats.bytes += event.data.length;
+    stats.bytes += approxBytes;
     if (!stats.firstArrival) stats.firstArrival = receivedAt;
+    stats.lastArrival = receivedAt;
 
     let e2eLatency;
     if (typeof packet.sentAt === "number") {
         e2eLatency = Date.now() - packet.sentAt;
-        stats.latencies.push(e2eLatency);
+        if (e2eLatency >= 0) {
+            stats.latencies.push(e2eLatency);
+            if (stats.latencies.length > LATENCY_SAMPLE_CAP) {
+                stats.latencies.shift();
+            }
+        }
     }
 
     updateStats();
@@ -109,7 +127,7 @@ function handleMessage(event) {
     } else if (packet.type === "image") {
         handleImagePacket(packet, e2eLatency);
     } else {
-        log(`Unknown message type: ${packet.type}`);
+        log(messageLog, `Unknown message type: ${packet.type}`);
     }
 }
 
@@ -120,11 +138,9 @@ function handleAudioPacket(packet, latencyMs) {
         receivedTranscript.textContent = currentTranscript;
         playButton.disabled = !speechSupported;
         stopButton.disabled = !speechSupported;
-        if (!speechSupported) {
-            ttsError.textContent = "Speech synthesis is not supported in this browser.";
-        } else {
-            ttsError.textContent = "";
-        }
+        ttsError.textContent = speechSupported
+            ? ""
+            : "Speech synthesis is not supported in this browser.";
     } else {
         receivedTranscript.textContent =
             "(Sender did not transcribe this recording — play the original below.)";
@@ -132,7 +148,6 @@ function handleAudioPacket(packet, latencyMs) {
         stopButton.disabled = true;
     }
 
-    // Decode original recording (optional secondary control)
     if (packet.data && packet.mimeType) {
         if (lastOriginalAudioUrl) URL.revokeObjectURL(lastOriginalAudioUrl);
         lastOriginalAudioUrl = base64ToBlobUrl(packet.data, packet.mimeType);
@@ -142,35 +157,49 @@ function handleAudioPacket(packet, latencyMs) {
         originalRecordingWrap.hidden = true;
     }
 
+    const latencyText = latencyMs !== undefined
+        ? ` · ${latencyMs < 0 ? "clock skew" : `${latencyMs.toFixed(0)} ms`}`
+        : "";
     log(
+        messageLog,
         `audio · ${packet.filename || "recording"} · ` +
-        `${currentTranscript.length} chars · ${formatBytes(packet.data)}` +
-        (latencyMs !== undefined ? ` · ${latencyMs.toFixed(0)} ms` : "")
+        `${currentTranscript.length} chars · ${formatBytes(packet.data)}${latencyText}`
     );
 }
 
 function handleImagePacket(packet, latencyMs) {
     if (!packet.data || !packet.mimeType) {
-        log("Ignored image with missing data");
+        log(messageLog, "Ignored image with missing data");
         return;
     }
-    receivedImage.src = base64ToDataUrl(packet.data, packet.mimeType);
+    if (!String(packet.mimeType).toLowerCase().startsWith("image/")) {
+        log(messageLog, `Ignored non-image mimeType: ${packet.mimeType}`);
+        return;
+    }
+
+    const newUrl = base64ToBlobUrl(packet.data, packet.mimeType);
+    if (lastImageBlobUrl) URL.revokeObjectURL(lastImageBlobUrl);
+    lastImageBlobUrl = newUrl;
+
+    receivedImage.src = newUrl;
     receivedImageWrap.hidden = false;
+    receivedImage.hidden = false;
     imagePlaceholder.hidden = true;
     receivedImageMeta.textContent = `${packet.filename || "image"} · ${packet.mimeType}`;
+
+    const latencyText = latencyMs !== undefined
+        ? ` · ${latencyMs < 0 ? "clock skew" : `${latencyMs.toFixed(0)} ms`}`
+        : "";
     log(
-        `image · ${packet.filename || "image"} · ${formatBytes(packet.data)}` +
-        (latencyMs !== undefined ? ` · ${latencyMs.toFixed(0)} ms` : "")
+        messageLog,
+        `image · ${packet.filename || "image"} · ${formatBytes(packet.data)}${latencyText}`
     );
 }
-
-let voicesLoaded = false;
 
 function loadVoices() {
     if (!speechSupported) return;
     const voices = synth.getVoices();
     if (!voices || voices.length === 0) return;
-    voicesLoaded = true;
 
     voiceSelect.innerHTML = "";
     voices.forEach((voice, index) => {
@@ -180,22 +209,28 @@ function loadVoices() {
         voiceSelect.appendChild(option);
     });
 
-    const preferred =
-        voices.find((v) => v.default) ||
-        voices.find((v) => v.lang?.toLowerCase().startsWith("en")) ||
-        voices[0];
-    currentVoice = preferred;
-    voiceSelect.value = String(voices.indexOf(preferred));
+    if (!userChoseVoice) {
+        const preferred =
+            voices.find((v) => v.default) ||
+            voices.find((v) => v.lang?.toLowerCase().startsWith("en")) ||
+            voices[0];
+        currentVoice = preferred;
+        voiceSelect.value = String(voices.indexOf(preferred));
+    } else if (currentVoice) {
+        const idx = voices.indexOf(currentVoice);
+        if (idx >= 0) voiceSelect.value = String(idx);
+    }
 }
 
 if (speechSupported) {
     loadVoices();
     synth.addEventListener("voiceschanged", loadVoices);
-    // Some browsers need an initial call after a tick
     window.setTimeout(loadVoices, 100);
+
     voiceSelect.addEventListener("change", () => {
         const voices = synth.getVoices();
         currentVoice = voices[Number(voiceSelect.value)] || null;
+        userChoseVoice = true;
     });
     rateInput.addEventListener("input", () => {
         rateValue.textContent = Number(rateInput.value).toFixed(1);
@@ -223,9 +258,7 @@ if (speechSupported) {
         synth.speak(utterance);
     });
 
-    stopButton.addEventListener("click", () => {
-        if (synth.speaking || synth.pending) synth.cancel();
-    });
+    stopButton.addEventListener("click", () => synth.cancel());
 } else {
     playButton.disabled = true;
     stopButton.disabled = true;
@@ -238,16 +271,14 @@ if (speechSupported) {
 function updateStats() {
     statsSummary.textContent = `${stats.count} message${stats.count === 1 ? "" : "s"}`;
 
-    const totalKB = (stats.bytes / 1024).toFixed(1);
-    const parts = [`${totalKB} KB received`];
+    const parts = [`${formatBytes(stats.bytes)} received`];
 
-    if (stats.count > 1) {
-        const elapsedSec = (stats.lastArrival - stats.firstArrival) / 1000 || 0;
-        stats.lastArrival = performance.now();
-        const throughput = elapsedSec > 0 ? (stats.bytes / 1024 / elapsedSec).toFixed(1) : "—";
+    if (stats.count > 1 && stats.lastArrival > stats.firstArrival) {
+        const elapsedSec = (stats.lastArrival - stats.firstArrival) / 1000;
+        const throughput = elapsedSec > 0
+            ? (stats.bytes / 1024 / elapsedSec).toFixed(1)
+            : "—";
         parts.push(`≈ ${throughput} KB/s`);
-    } else {
-        stats.lastArrival = performance.now();
     }
 
     if (stats.latencies.length > 0) {
@@ -257,6 +288,11 @@ function updateStats() {
 
     statsDetail.textContent = parts.join(" · ");
 }
+
+window.addEventListener("pagehide", () => {
+    if (lastOriginalAudioUrl) URL.revokeObjectURL(lastOriginalAudioUrl);
+    if (lastImageBlobUrl) URL.revokeObjectURL(lastImageBlobUrl);
+});
 
 if (!speechSupported) {
     console.warn("Speech synthesis not supported — Play/Stop will be disabled.");
