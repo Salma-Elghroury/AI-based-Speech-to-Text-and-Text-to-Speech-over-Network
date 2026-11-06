@@ -1,7 +1,7 @@
 const WebSocket = require("ws");
 const wss = new WebSocket.Server({ port: 8080 });
 
-wss.on("connection", function (ws) {
+wss.on("connection", function (ws, req) {
 
     console.log("Client connected");
 
@@ -9,11 +9,12 @@ wss.on("connection", function (ws) {
 
         console.log("Received:", message.toString());
 
-        // Forward message to other connected clients
-
+        // Broadcast to every other socket, including the receiver in a
+        // combined sender/receiver workspace on the same page.
         wss.clients.forEach(function (client) {
 
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
+            if (client !== ws &&
+                client.readyState === WebSocket.OPEN) {
 
                 client.send(message.toString());
             }

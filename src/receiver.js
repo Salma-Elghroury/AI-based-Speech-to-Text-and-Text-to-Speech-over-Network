@@ -1,12 +1,11 @@
 import {
-    connectWebSocket,
     base64ToBlobUrl,
     formatBytes,
-    log
+    log,
+    connectWebSocket,
+    attachConnectionStatus
 } from "./common.js";
 
-const connectionStatus = document.getElementById("connectionStatus");
-const connectionLabel = document.getElementById("connectionLabel");
 const receivedTranscript = document.getElementById("receivedTranscript");
 const playButton = document.getElementById("playButton");
 const stopButton = document.getElementById("stopButton");
@@ -44,51 +43,6 @@ const stats = {
     lastArrival: 0,
     latencies: []
 };
-
-let socket;
-let reconnectTimer;
-
-function setStatus(state, detail) {
-    connectionStatus.dataset.state = state;
-    connectionLabel.textContent = detail ?? (
-        state === "connected" ? "Connected to relay" :
-        state === "connecting" ? "Connecting…" :
-        state === "disconnected" ? "Disconnected — retrying…" :
-        "Connection error"
-    );
-}
-
-function attachSocketHandlers(ws) {
-    ws.addEventListener("open", () => setStatus("connected"));
-    ws.addEventListener("close", () => {
-        setStatus("disconnected");
-        scheduleReconnect();
-    });
-    ws.addEventListener("error", () => {
-        setStatus("error", "Connection error — retrying…");
-    });
-    ws.addEventListener("message", (event) => handleMessage(event));
-}
-
-function scheduleReconnect() {
-    window.clearTimeout(reconnectTimer);
-    reconnectTimer = window.setTimeout(() => {
-        connect();
-    }, 2000);
-}
-
-function connect() {
-    setStatus("connecting");
-    try {
-        socket = connectWebSocket();
-    } catch (error) {
-        console.error("Could not create socket:", error);
-        setStatus("error", "Could not open socket — retrying…");
-        scheduleReconnect();
-        return;
-    }
-    attachSocketHandlers(socket);
-}
 
 function handleMessage(event) {
     const receivedAt = performance.now();
@@ -269,7 +223,7 @@ if (speechSupported) {
 }
 
 function updateStats() {
-    statsSummary.textContent = `${stats.count} message${stats.count === 1 ? "" : "s"}`;
+    statsSummary.textContent = `${stats.count} received`;
 
     const parts = [`${formatBytes(stats.bytes)} received`];
 
@@ -289,7 +243,12 @@ function updateStats() {
     statsDetail.textContent = parts.join(" · ");
 }
 
+const socket = connectWebSocket();
+attachConnectionStatus(socket, "#connectionStatus");
+socket.addEventListener("message", handleMessage);
+
 window.addEventListener("pagehide", () => {
+    socket.close();
     if (lastOriginalAudioUrl) URL.revokeObjectURL(lastOriginalAudioUrl);
     if (lastImageBlobUrl) URL.revokeObjectURL(lastImageBlobUrl);
 });
@@ -297,5 +256,3 @@ window.addEventListener("pagehide", () => {
 if (!speechSupported) {
     console.warn("Speech synthesis not supported — Play/Stop will be disabled.");
 }
-
-connect();

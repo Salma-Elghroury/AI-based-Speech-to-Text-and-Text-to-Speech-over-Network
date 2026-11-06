@@ -1,6 +1,7 @@
-import { blobToBase64, connectWebSocket } from "./common.js";
+import { blobToBase64, connectWebSocket, attachConnectionStatus, logSent } from "./common.js";
 
 const socket = connectWebSocket();
+attachConnectionStatus(socket);
 const recordButton = document.getElementById("recordButton");
 const recordButtonText = document.getElementById("recordButtonText");
 const recordHint = document.getElementById("recordHint");
@@ -200,6 +201,7 @@ reviewForm.addEventListener("submit", async (event) => {
             data: await blobToBase64(audioBlob)
         };
         socket.send(JSON.stringify(packet));
+        logSent(`sent · audio · ${packet.filename} · ${packet.transcript.length} chars`);
         recordHint.textContent = "Your audio message was sent.";
         reviewDialog.close();
     } catch (error) {
