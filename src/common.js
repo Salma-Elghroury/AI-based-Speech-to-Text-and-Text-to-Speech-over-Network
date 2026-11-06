@@ -1,7 +1,20 @@
+function createClientId() {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        return crypto.randomUUID();
+    }
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+// This module is evaluated once per page, so every socket opened by the
+// sender, receiver, and image scripts in the same page shares this ID.
+const clientId = createClientId();
+
 export function connectWebSocket() {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const host = window.location.hostname || "localhost";
-    const socket = new WebSocket(`${protocol}//${host}:8080`);
+    const socket = new WebSocket(
+        `${protocol}//${host}:8080?clientId=${encodeURIComponent(clientId)}`
+    );
 
     socket.addEventListener("error", () => console.error("WebSocket connection error"));
 

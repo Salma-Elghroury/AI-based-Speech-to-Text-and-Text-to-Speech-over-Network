@@ -4,8 +4,34 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f5f7f2">
-    <title>Relay — Share a voice or image</title>
+    <title>Relay — Combined or separate</title>
     <link rel="stylesheet" href="./src/styles.css">
+    <style>
+        html { scroll-behavior: smooth; }
+
+        .combined-icon {
+            color: var(--green);
+            background: #e7f2e9;
+        }
+
+        .separate-icon {
+            color: #a76a3d;
+            background: #f7ecdf;
+        }
+
+        .sender-icon {
+            color: var(--green);
+            background: #e7f2e9;
+        }
+
+        .separate-section {
+            scroll-margin-top: var(--space-4);
+        }
+
+        .separate-section .choice-grid {
+            margin-top: var(--space-3);
+        }
+    </style>
 </head>
 <body>
     <div class="page-shell">
@@ -21,48 +47,71 @@
         <main class="home-main">
             <section class="hero-copy" aria-labelledby="page-title">
                 <p class="eyebrow"><span class="eyebrow-line"></span> YOUR MESSAGE, YOUR WAY</p>
-                <h1 id="page-title">Share it the way<br>you <span class="text-accent">feel it.</span></h1>
-                <p class="hero-description">Send a voice message or an image in just a few moments. Choose how you’d like to start.</p>
+                <h1 id="page-title">Run it together<br>or <span class="text-accent">keep it apart.</span></h1>
+                <p class="hero-description">Start with a combined sender-and-receiver workspace, or open the two sides as separate pages.</p>
             </section>
 
-            <section class="choice-grid" aria-label="Choose what to send">
-                <a class="choice-card audio-choice" href="./src/sender.html">
-                    <span class="choice-icon audio-icon" aria-hidden="true">
-                        <svg viewBox="0 0 48 48"><path d="M24 29a7 7 0 0 0 7-7V13a7 7 0 0 0-14 0v9a7 7 0 0 0 7 7Z"/><path d="M12 22a12 12 0 0 0 24 0M24 34v7m-7 0h14"/></svg>
+            <section class="choice-grid" aria-label="Choose how to open Relay">
+                <a class="choice-card audio-choice" href="./src/app.html">
+                    <span class="choice-icon combined-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48">
+                            <rect x="6" y="10" width="36" height="28" rx="5"/>
+                            <path d="M24 10v28"/>
+                            <path d="M12 18h6M12 24h6M12 30h6M30 18h6M30 24h6M30 30h6"/>
+                        </svg>
                     </span>
-                    <span class="choice-label">01 / VOICE</span>
-                    <span class="choice-title">Send audio</span>
-                    <span class="choice-description">Record your voice, review the transcript, and send when it feels right.</span>
+                    <span class="choice-label">01 / COMBINED</span>
+                    <span class="choice-title">Combined workspace</span>
+                    <span class="choice-description">Send and receive side by side in the same browser window. Your receiver half ignores messages sent by your own page.</span>
+                    <span class="choice-link">Open combined workspace</span>
                     <span class="card-decoration audio-decoration" aria-hidden="true"></span>
                 </a>
 
-                <a class="choice-card image-choice" href="./src/image.html">
-                    <span class="choice-icon image-icon" aria-hidden="true">
-                        <svg viewBox="0 0 48 48"><rect x="8" y="10" width="32" height="28" rx="5"/><circle cx="19" cy="20" r="3"/><path d="m10 33 9-9 7 7 5-5 7 7"/></svg>
+                <a class="choice-card image-choice" href="#separate">
+                    <span class="choice-icon separate-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48">
+                            <rect x="5" y="10" width="16" height="28" rx="4"/>
+                            <rect x="27" y="10" width="16" height="28" rx="4"/>
+                        </svg>
                     </span>
-                    <span class="choice-label">02 / VISUAL</span>
-                    <span class="choice-title">Send an image</span>
-                    <span class="choice-description">Choose an image from your device and share it over the network.</span>
+                    <span class="choice-label">02 / SEPARATE</span>
+                    <span class="choice-title">Separate sender &amp; receiver</span>
+                    <span class="choice-description">Use two independent pages, one for sending and one for receiving—ideal for two browser windows.</span>
+                    <span class="choice-link">Choose separate pages</span>
                     <span class="card-decoration image-decoration" aria-hidden="true"></span>
                 </a>
             </section>
 
-            <section class="receiver-section" aria-labelledby="receiver-title">
+            <section id="separate" class="receiver-section separate-section" aria-labelledby="separate-title">
                 <div class="receiver-section-heading">
-                    <p class="eyebrow"><span class="eyebrow-line"></span> BROWSER 2</p>
-                    <h2 id="receiver-title" class="receiver-section-title">Receive what was sent.</h2>
-                    <p class="hero-description">Open this in a second browser window to hear the transcript read aloud and see incoming images in real time.</p>
+                    <p class="eyebrow"><span class="eyebrow-line"></span> SEPARATE PAGES</p>
+                    <h2 id="separate-title" class="receiver-section-title">Pick a side.</h2>
+                    <p class="hero-description">Open the sender and receiver in their own pages. Use two browser windows to see the full network flow.</p>
                 </div>
-                <a class="choice-card receiver-choice" href="./src/receiver.html">
-                    <span class="choice-icon receiver-icon" aria-hidden="true">
-                        <svg viewBox="0 0 48 48"><path d="M40 24a16 16 0 0 1-16 16"/><path d="M40 24a16 16 0 0 0-16-16"/><path d="M32 24a8 8 0 0 1-8 8"/><path d="M32 24a8 8 0 0 0-8-8"/><circle cx="16" cy="24" r="3"/></svg>
-                    </span>
-                    <span class="choice-label">03 / RECEIVER</span>
-                    <span class="choice-title">Open receiver</span>
-                    <span class="choice-description">Listen to incoming voice messages via speech synthesis, and view images as they arrive.</span>
-                    <span class="choice-link">Open Browser 2 <span aria-hidden="true">→</span></span>
-                    <span class="card-decoration receiver-decoration" aria-hidden="true"></span>
-                </a>
+
+                <div class="choice-grid">
+                    <a class="choice-card audio-choice" href="./src/sender.html">
+                        <span class="choice-icon sender-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48"><path d="M24 29a7 7 0 0 0 7-7V13a7 7 0 0 0-14 0v9a7 7 0 0 0 7 7Z"/><path d="M12 22a12 12 0 0 0 24 0M24 34v7m-7 0h14"/></svg>
+                        </span>
+                        <span class="choice-label">03 / SENDER</span>
+                        <span class="choice-title">Open sender</span>
+                        <span class="choice-description">Record audio, review the transcript, and send messages over the network.</span>
+                        <span class="choice-link">Open sender</span>
+                        <span class="card-decoration audio-decoration" aria-hidden="true"></span>
+                    </a>
+
+                    <a class="choice-card receiver-choice" href="./src/receiver.html">
+                        <span class="choice-icon receiver-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48"><path d="M40 24a16 16 0 0 1-16 16"/><path d="M40 24a16 16 0 0 0-16-16"/><path d="M32 24a8 8 0 0 1-8 8"/><path d="M32 24a8 8 0 0 0-8-8"/><circle cx="16" cy="24" r="3"/></svg>
+                        </span>
+                        <span class="choice-label">04 / RECEIVER</span>
+                        <span class="choice-title">Open receiver</span>
+                        <span class="choice-description">Hear incoming voice messages read aloud and view images as they arrive.</span>
+                        <span class="choice-link">Open receiver</span>
+                        <span class="card-decoration receiver-decoration" aria-hidden="true"></span>
+                    </a>
+                </div>
             </section>
         </main>
     </div>
