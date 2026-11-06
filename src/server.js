@@ -12,8 +12,6 @@ wss.on("connection", function (ws, req) {
 
         console.log("Received:", message.toString());
 
-        // Forward the message to other clients, but skip every socket that
-        // belongs to the same page (the combined sender + receiver workspace).
         wss.clients.forEach(function (client) {
 
             if (client !== ws &&

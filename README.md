@@ -1,6 +1,6 @@
 # AI-based Speech-to-Text and Text-to-Speech over Network
 
-A browser-based sender/receiver pair for recording an audio message or selecting a single image and sending it over a WebSocket connection. Audio is transcribed in the sender's browser where speech recognition is supported; the sender can review and edit the transcript before sending. The receiver reads the transcript back aloud using the Speech Synthesis Web API and displays received images.
+A browser-based sender/receiver app for recording an audio message or selecting a single image and sending it over a WebSocket connection. The sender and receiver can run side by side in one combined workspace or as separate pages. Audio is transcribed in the sender's browser where speech recognition is supported; the sender can review and edit the transcript before sending. The receiver reads the transcript back aloud using the Speech Synthesis Web API and displays received images.
 
 ## Requirements
 
@@ -42,13 +42,12 @@ py -3 -m http.server 5500 --bind 127.0.0.1
 
 Alternatively, open the project folder in VS Code and use the **Live Server** extension to serve `index.html`.
 
-Open [http://localhost:5500](http://localhost:5500) (or the URL shown by Live Server). The landing page offers three entry points:
+Open [http://localhost:5500](http://localhost:5500) (or the URL shown by Live Server). The landing page offers two starting points:
 
-- **Send audio** — record, review the transcript, and send.
-- **Send an image** — select and send one image.
-- **Open receiver** — a second browser window that listens for incoming messages, reads the transcript aloud, and displays images.
+- **Combined workspace** — sender and receiver side by side in one browser window. The receiver half ignores messages sent from the same page.
+- **Separate sender & receiver** — scroll to the standalone sender and receiver pages for two-window testing.
 
-To try the full flow, open **two browser windows**: one acting as the sender and one as the receiver.
+To try the full flow with separate pages, open **two browser windows**: one acting as the sender and one as the receiver.
 
 To stop either server, press `Ctrl+C` in its terminal.
 
@@ -57,6 +56,7 @@ To stop either server, press `Ctrl+C` in its terminal.
 - Audio is recorded with the browser's `MediaRecorder` API and sent only after you confirm in the review dialog.
 - Live transcription uses the browser's Web Speech API and depends on browser support and microphone permission. If live transcription is unavailable, you can type the transcript into the review dialog.
 - Image selection accepts one image at a time. The page displays a file-added confirmation instead of a preview; press **Send image** to transmit it.
+- The standalone sender page and the sender side of the combined workspace both support audio and image sending.
 - The sender connects to `ws://<page-host>:8080` over HTTP and `wss://<page-host>:8080` over HTTPS. The included server is plain WebSocket (not TLS); an HTTPS deployment needs a TLS-enabled WebSocket endpoint.
 - Each outgoing packet includes a `sentAt` timestamp (milliseconds since epoch) so the receiver can compute end-to-end latency.
 
@@ -100,20 +100,19 @@ Image:
 }
 ```
 
-The included server logs incoming messages and forwards each message to other connected WebSocket clients. It does not save messages.
+The included server logs incoming messages and forwards each message to other WebSocket clients that belong to a different page. Each page load generates a client ID, so the combined workspace's receiver half does not receive messages sent from its own sender half, while other tabs and browsers still do. The server does not save messages.
 
 ## Project structure
 
 ```text
-index.html          Sender landing page (also links to the receiver)
+index.html          Landing page (combined workspace or separate pages)
 src/
-  sender.html       Audio recording and transcript review
-  sender.js         Audio capture, transcription, and sending
-  image.html        Single-image selection and sending
-  image.js          Image selection and WebSocket sending
+  app.html          Combined sender + receiver workspace
+  sender.html       Standalone sender (audio recording and image selection)
+  sender.js         Audio capture, transcription, image sending, WebSocket output
   receiver.html     Receiver page (speech synthesis and image display)
   receiver.js       WebSocket handling, TTS, image rendering, stats
-  common.js  Shared WebSocket and Base64 helpers
+  common.js         Shared WebSocket and Base64 helpers
   styles.css        Shared page styles
   server.js         WebSocket server on port 8080
 images/             Project images

@@ -160,9 +160,6 @@ h1 {
     border-radius: 16px;
 }
 
-.audio-icon { color: var(--green); background: #e7f2e9; }
-.image-icon { color: #a76a3d; background: #f7ecdf; }
-
 .choice-icon svg, .upload-icon svg {
     width: 28px;
     fill: none;
@@ -411,7 +408,6 @@ h1 {
 .dialog-error { min-height: var(--space-3); margin: var(--space-1) 0 0; color: #a44f47; font-size: 11px; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-1); margin-top: var(--space-2); }
 
-.image-workflow { width: min(688px, 100%); }
 .image-card { padding-bottom: var(--space-4); }
 .image-file-type { color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .8px; }
 
@@ -500,10 +496,6 @@ h1 {
     margin: 0 0 var(--space-2);
     font: 700 26px/1.25 "Manrope", sans-serif;
     letter-spacing: -1.1px;
-}
-
-.receiver-choice {
-    max-width: 560px;
 }
 
 .receiver-icon { color: #4a6fa8; background: #e6edf8; }
