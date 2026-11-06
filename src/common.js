@@ -5,8 +5,6 @@ function createClientId() {
     return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-// This module is evaluated once per page, so every socket opened by the
-// sender, receiver, and image scripts in the same page shares this ID.
 const clientId = createClientId();
 
 export function connectWebSocket() {
@@ -41,10 +39,6 @@ export function blobToBase64(blob) {
         reader.onerror = () => reject(reader.error || new Error("Could not read the selected file."));
         reader.readAsDataURL(blob);
     });
-}
-
-export function base64ToDataUrl(base64, mimeType) {
-    return `data:${mimeType};base64,${base64}`;
 }
 
 export function base64ToBlobUrl(base64, mimeType) {
