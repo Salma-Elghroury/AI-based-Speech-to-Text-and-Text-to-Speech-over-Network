@@ -1,6 +1,7 @@
-import { blobToBase64, connectWebSocket } from "./common.js";
+import { blobToBase64, connectWebSocket, attachConnectionStatus, formatBytes, logSent } from "./common.js";
 
 const socket = connectWebSocket();
+attachConnectionStatus(socket);
 const imageInput = document.getElementById("imageInput");
 const dropzone = document.getElementById("dropzone");
 const uploadConfirmation = document.getElementById("uploadConfirmation");
@@ -33,6 +34,7 @@ function selectImage(files) {
     sendImageButton.innerHTML = 'Send image';
     dropzone.hidden = true;
     uploadConfirmation.hidden = false;
+    dropzone.closest(".image-card")?.classList.add("has-confirmation");
     selectedFile.textContent = `${file.name} · ${(file.size / (1024 * 1024)).toFixed(2)} MB`;
     sendImageButton.disabled = false;
 }
@@ -40,6 +42,7 @@ function selectImage(files) {
 imageInput.addEventListener("change", () => selectImage(imageInput.files));
 changeImageButton.addEventListener("click", () => {
     imageInput.value = "";
+    dropzone.closest(".image-card")?.classList.remove("has-confirmation");
     imageInput.click();
 });
 
@@ -76,6 +79,7 @@ sendImageButton.addEventListener("click", async () => {
             data: await blobToBase64(selectedImage)
         };
         socket.send(JSON.stringify(packet));
+        logSent(`sent · image · ${packet.filename} · ${formatBytes(packet.data)}`);
         imageSent = true;
         sendImageButton.textContent = "Image sent";
         imageInput.value = "";

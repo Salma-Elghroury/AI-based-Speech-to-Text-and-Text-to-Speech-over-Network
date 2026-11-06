@@ -3,22 +3,18 @@ const wss = new WebSocket.Server({ port: 8080 });
 
 wss.on("connection", function (ws, req) {
 
-    const requestUrl = new URL(req.url, "http://localhost");
-    ws.clientId = requestUrl.searchParams.get("clientId");
-
-    console.log("Client connected", ws.clientId || "(no client id)");
+    console.log("Client connected");
 
     ws.on("message", function (message) {
 
         console.log("Received:", message.toString());
 
-        // Forward the message to other clients, but skip every socket that
-        // belongs to the same page (the combined sender + receiver workspace).
+        // Broadcast to every other socket, including the receiver in a
+        // combined sender/receiver workspace on the same page.
         wss.clients.forEach(function (client) {
 
             if (client !== ws &&
-                client.readyState === WebSocket.OPEN &&
-                (!ws.clientId || client.clientId !== ws.clientId)) {
+                client.readyState === WebSocket.OPEN) {
 
                 client.send(message.toString());
             }

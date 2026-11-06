@@ -17,53 +17,185 @@
             margin-bottom: 0;
         }
 
+        /*
+         * The combined workspace is a two-column grid where every sender
+         * element is immediately followed by its receiver counterpart, so
+         * each pair shares one grid row and always lines up:
+         *   row 1: sender heading + status   | receiver heading + status
+         *   row 2: sender audio card         | receiver audio card
+         *   row 3: sender image card         | receiver image card
+         *   row 4: sender "Network events"   | receiver "Activity log"
+         */
         .app-main {
+            position: relative;
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-            gap: 48px;
+            column-gap: 48px;
+            row-gap: 0;
             align-items: start;
             padding: var(--space-5) 0 var(--space-8);
         }
 
-        .app-pane {
+        .app-main::before {
+            position: absolute;
+            top: var(--space-5);
+            bottom: calc(var(--space-8) + var(--space-6));
+            left: 50%;
+            width: 1px;
+            background: rgba(28, 41, 36, .1);
+            content: "";
+            pointer-events: none;
+            transform: translateX(-50%);
+        }
+
+        .app-main>*:nth-child(even) {
+            padding-left: 0;
+            border-left: 0;
+        }
+
+        .app-main>* {
             min-width: 0;
         }
 
-        .app-pane+.app-pane {
-            padding-left: 48px;
-            border-left: 1px solid rgba(28, 41, 36, .1);
+        .app-main > .record-card[data-align-group] {
+            align-self: stretch;
         }
 
-        .app-pane .workflow-main {
+        .app-main .workflow-main {
             width: 100%;
             margin: 0;
             padding: 0;
         }
 
-        .app-pane .workflow-heading h1 {
+        .app-main .workflow-heading h1 {
             font-size: clamp(32px, 3.4vw, 48px);
         }
 
-        .app-pane .workflow-heading .hero-description {
+        .app-main .workflow-heading .hero-description {
             max-width: none;
         }
 
         .sender-extra {
-            margin-top: var(--space-4);
+            margin-top: 0;
+        }
+
+        .pane-gap-bottom {
+            margin-bottom: var(--space-6);
+        }
+
+        .combined-image-card {
+            display: flex;
+            min-height: 496px;
+            flex-direction: column;
+        }
+
+        .combined-image-content {
+            display: flex;
+            min-height: min-content;
+            flex: 1 0 auto;
+            flex-direction: column;
+            justify-content: center;
+            margin-top: var(--space-3);
+        }
+
+        .receiver-image-card .record-card-top {
+            padding-bottom: var(--space-2);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .receiver-image-card {
+            display: grid;
+            grid-template-rows: auto minmax(min-content, 1fr);
+        }
+
+        .receiver-image-card .record-card-top {
+            align-self: start;
+        }
+
+        .receiver-content-card {
+            width: 100%;
+            min-width: 0;
+            max-height: none;
+            overflow: visible;
+        }
+
+        .receiver-content-card > *,
+        .receiver-content-card .record-card-top > div {
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .receiver-content-card .transcript-preview,
+        .receiver-content-card .stats-legend,
+        .receiver-content-card .message-log li {
+            overflow-wrap: anywhere;
+        }
+
+        .receiver-content-card .tts-controls {
+            width: 100%;
+        }
+
+        .receiver-image-content {
+            grid-row: 2;
+            min-height: min-content;
+            flex: none;
+            align-items: center;
+            margin-top: var(--space-3);
+            padding: 0 var(--space-4);
+            text-align: center;
+        }
+
+        .receiver-image-content .received-image-wrap {
+            width: 100%;
+            min-width: 0;
+            align-content: center;
+            justify-items: center;
+            margin-top: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .receiver-image-content .received-image-wrap img {
+            width: 100%;
+            max-width: 100%;
+            max-height: min(280px, 40vh);
+            object-fit: contain;
+        }
+
+        .receiver-image-content .received-image-wrap[hidden] {
+            display: none;
+        }
+
+        #imageInput:focus-visible~.combined-image-content .image-dropzone {
+            outline: 3px solid rgba(47, 123, 91, .25);
+        }
+
+        /* Invisible stand-in for the receiver column so the sender's
+           back-link doesn't push the two headings out of alignment. */
+        .heading-spacer {
+            height: 17px;
+            pointer-events: none;
         }
 
         @media (max-width: 1100px) {
             .app-main {
                 grid-template-columns: 1fr;
-                gap: 0;
+                column-gap: 0;
             }
 
-            .app-pane+.app-pane {
-                margin-top: var(--space-6);
-                padding-top: var(--space-6);
+            .app-main::before {
+                display: none;
+            }
+
+            .app-main>*:nth-child(even) {
+                margin-top: var(--space-2);
+                padding-top: var(--space-5);
                 padding-left: 0;
                 border-top: 1px solid rgba(28, 41, 36, .1);
                 border-left: 0;
+            }
+
+            .app-main>*:nth-child(odd):not(:first-child) {
+                margin-top: var(--space-5);
             }
         }
 
@@ -76,7 +208,7 @@
                 padding-top: var(--space-4);
             }
 
-            .app-pane .workflow-heading h1 {
+            .app-main .workflow-heading h1 {
                 font-size: clamp(30px, 9vw, 40px);
             }
         }
@@ -94,187 +226,219 @@
                 </span>
                 <span>relay<span class="brand-dot">.</span></span>
             </a>
-            <a class="back-link app-header-link" href="../index.html"><span aria-hidden="true">←</span> All message
-                types</a>
         </header>
 
         <main class="app-main">
-            <!-- ============================= SENDER ============================= -->
-            <section class="app-pane" aria-labelledby="senderTitle">
-                <div class="workflow-main">
-                    <section class="workflow-heading">
-                        <p class="eyebrow"><span class="eyebrow-line"></span> SENDER</p>
-                        <h1 id="senderTitle">Say it. Send it.<br><span class="text-accent">See it arrive.</span></h1>
-                        <p class="hero-description">Record a voice message or choose an image on this side. Messages you
-                            send appear on the receiver side.</p>
-                    </section>
+            <!-- ======== ROW 1 · sender heading + status | receiver heading + status ======== -->
+            <div class="sender-heading-cell">
+                <a class="back-link" href="../index.html"><span aria-hidden="true">←</span> All message types</a>
+                <section class="workflow-heading">
+                    <p class="eyebrow"><span class="eyebrow-line"></span> SENDER</p>
+                    <h1 id="senderTitle">Say it. Send it.<br><span class="text-accent">See it arrive.</span></h1>
+                    <p class="hero-description">Record a voice message or choose an image on this side. Messages you
+                        send appear on the receiver side.</p>
+                </section>
+                <div class="connection-status" data-connection-status role="status" aria-live="polite">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <span data-connection-label>Connecting…</span>
+                </div>
+            </div>
 
-                    <section class="record-card" aria-labelledby="record-title">
-                        <div class="record-card-top">
-                            <div>
-                                <p class="section-kicker">YOUR RECORDING</p>
-                                <h2 id="record-title">A moment to say it</h2>
-                            </div>
-                            <span class="record-time" id="recordTime">00:00</span>
-                        </div>
-                        <div class="waveform" id="waveform" aria-hidden="true">
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                        </div>
-                        <p class="record-hint" id="recordHint">Find a quiet moment, then press record.</p>
-                        <button class="button button-primary record-button" id="recordButton" type="button">
-                            <span class="record-button-icon" aria-hidden="true"></span>
-                            <span id="recordButtonText">Start recording</span>
+            <div class="receiver-heading-cell">
+                <!-- Invisible spacer: matches the sender's back-link so the
+                     two headings (and status pills) line up on one row. -->
+                <div class="back-link heading-spacer" aria-hidden="true"></div>
+                <section class="workflow-heading">
+                    <p class="eyebrow"><span class="eyebrow-line"></span> RECEIVER</p>
+                    <h1 id="receiverTitle">Hear it. See it.<br><span class="text-accent">Live.</span></h1>
+                    <p class="hero-description">Incoming voice messages and images arrive here in real time. Press
+                        Play to have the transcript read aloud.</p>
+                </section>
+                <div class="connection-status" id="connectionStatus" role="status" aria-live="polite">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <span id="connectionLabel" data-connection-label>Connecting…</span>
+                </div>
+            </div>
+
+            <!-- ======== ROW 2 · audio pair ======== -->
+            <section class="record-card" aria-labelledby="record-title" data-align-group="audio">
+                <div class="record-card-top">
+                    <div>
+                        <p class="section-kicker">YOUR RECORDING</p>
+                        <h2 id="record-title">A moment to say it</h2>
+                    </div>
+                    <span class="record-time" id="recordTime">00:00</span>
+                </div>
+                <div class="waveform" id="waveform" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <p class="record-hint" id="recordHint">Find a quiet moment, then press record.</p>
+                <button class="button button-primary record-button" id="recordButton" type="button">
+                    <span class="record-button-icon" aria-hidden="true"></span>
+                    <span id="recordButtonText">Start recording</span>
+                </button>
+                <p class="transcript-preview-label">LIVE TRANSCRIPTION</p>
+                <p class="transcript-preview" id="transcriptPreview" aria-live="polite">Your words will appear
+                    here as you speak.</p>
+            </section>
+
+            <section class="record-card receiver-content-card" aria-labelledby="ttsTitle"
+                data-align-group="audio">
+                <div class="record-card-top">
+                    <div>
+                        <p class="section-kicker">SPEECH SYNTHESIS</p>
+                        <h2 id="ttsTitle">Listen to the message</h2>
+                    </div>
+                </div>
+
+                <p class="transcript-preview-label">RECEIVED TRANSCRIPT</p>
+                <p class="transcript-preview" id="receivedTranscript" aria-live="polite">
+                    Waiting for a voice message…
+                </p>
+
+                <div class="tts-controls">
+                    <div class="tts-buttons">
+                        <button id="playButton" class="button button-primary" type="button" disabled>
+                            <span aria-hidden="true">▶</span> Play speech
                         </button>
-                        <p class="transcript-preview-label">LIVE TRANSCRIPTION</p>
-                        <p class="transcript-preview" id="transcriptPreview" aria-live="polite">Your words will appear
-                            here as you speak.</p>
-                    </section>
+                        <button id="stopButton" class="button button-secondary" type="button" disabled>
+                            <span aria-hidden="true">■</span> Stop
+                        </button>
+                    </div>
 
-                    <section class="record-card image-card sender-extra" aria-labelledby="imageTitle">
-                        <div class="record-card-top">
-                            <div>
-                                <p class="section-kicker">YOUR IMAGE</p>
-                                <h2 id="imageTitle">A picture says a lot</h2>
-                            </div>
-                            <span class="image-file-type">JPG · PNG · WEBP</span>
-                        </div>
-                        <input id="imageInput" class="visually-hidden" type="file" accept="image/*">
-                        <label class="image-dropzone" id="dropzone" for="imageInput">
-                            <span class="dropzone-placeholder" id="dropzonePlaceholder">
-                                <span class="upload-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 48 48">
-                                        <path d="M24 32V10m-8 8 8-8 8 8" />
-                                        <path d="M10 28v9a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3v-9" />
-                                    </svg>
-                                </span>
-                                <span class="dropzone-title">Drop one image here</span>
-                                <span class="dropzone-subtitle">or <span>browse your files</span></span>
-                            </span>
+                    <div class="tts-field">
+                        <label class="field-label" for="voiceSelect">VOICE</label>
+                        <select id="voiceSelect" class="tts-select"></select>
+                    </div>
+
+                    <div class="tts-field">
+                        <label class="field-label" for="rateInput">
+                            RATE <span class="tts-value" id="rateValue">1.0</span>
                         </label>
-                        <div class="upload-confirmation" id="uploadConfirmation" role="status" aria-live="polite"
-                            hidden>
-                            <span class="upload-confirmation-icon" aria-hidden="true">✓</span>
-                            <span class="upload-confirmation-copy">
-                                <strong>Image added</strong>
-                                <span class="selected-file" id="selectedFile"></span>
+                        <input id="rateInput" type="range" min="0.5" max="2" step="0.1" value="1">
+                    </div>
+
+                    <div class="tts-field">
+                        <label class="field-label" for="pitchInput">
+                            PITCH <span class="tts-value" id="pitchValue">1.0</span>
+                        </label>
+                        <input id="pitchInput" type="range" min="0" max="2" step="0.1" value="1">
+                    </div>
+
+                    <div class="tts-original" id="originalRecordingWrap" hidden>
+                        <p class="field-label">ORIGINAL RECORDING</p>
+                        <audio id="originalAudio" class="audio-preview" controls></audio>
+                    </div>
+                </div>
+
+                <p class="dialog-error" id="ttsError" role="alert"></p>
+            </section>
+
+            <!-- ======== ROW 3 · image pair ======== -->
+            <section class="record-card image-card sender-extra combined-image-card"
+                aria-labelledby="imageTitle" id="senderImageCard" data-align-group="image">
+                <div class="record-card-top">
+                    <div>
+                        <p class="section-kicker">YOUR IMAGE</p>
+                        <h2 id="imageTitle">A picture says a lot</h2>
+                    </div>
+                    <span class="image-file-type">JPG · PNG · WEBP</span>
+                </div>
+                <input id="imageInput" class="visually-hidden" type="file" accept="image/*">
+                <div class="combined-image-content">
+                    <label class="image-dropzone" id="dropzone" for="imageInput">
+                        <span class="dropzone-placeholder" id="dropzonePlaceholder">
+                            <span class="upload-icon" aria-hidden="true">
+                                <svg viewBox="0 0 48 48">
+                                    <path d="M24 32V10m-8 8 8-8 8 8" />
+                                    <path d="M10 28v9a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3v-9" />
+                                </svg>
                             </span>
-                            <button class="change-image-button" id="changeImageButton" type="button">Change</button>
-                        </div>
-                        <p class="dialog-error" id="imageError" role="alert"></p>
-                        <button class="button button-primary image-send-button" id="sendImageButton" type="button"
-                            disabled>
-                            Send image
-                        </button>
-                    </section>
+                            <span class="dropzone-title">Drop one image here</span>
+                            <span class="dropzone-subtitle">or <span>browse your files</span></span>
+                        </span>
+                    </label>
+                    <div class="upload-confirmation" id="uploadConfirmation" role="status" aria-live="polite" hidden>
+                        <span class="upload-confirmation-icon" aria-hidden="true">✓</span>
+                        <span class="upload-confirmation-copy">
+                            <strong>Image added</strong>
+                            <span class="selected-file" id="selectedFile"></span>
+                        </span>
+                        <button class="change-image-button" id="changeImageButton" type="button">Change</button>
+                    </div>
+                    <p class="dialog-error" id="imageError" role="alert"></p>
+                    <button class="button button-primary image-send-button" id="sendImageButton" type="button"
+                        disabled>
+                        Send image
+                    </button>
                 </div>
             </section>
 
-            <!-- ============================ RECEIVER ============================ -->
-            <section class="app-pane" aria-labelledby="receiverTitle">
-                <div class="workflow-main receiver-main">
-                    <section class="workflow-heading">
-                        <p class="eyebrow"><span class="eyebrow-line"></span> RECEIVER</p>
-                        <h1 id="receiverTitle">Hear it. See it.<br><span class="text-accent">Live.</span></h1>
-                        <p class="hero-description">Incoming voice messages and images arrive here in real time. Press
-                            Play to have the transcript read aloud.</p>
-                    </section>
-
-                    <div class="connection-status" id="connectionStatus" role="status" aria-live="polite">
-                        <span class="status-dot" aria-hidden="true"></span>
-                        <span id="connectionLabel">Connecting…</span>
+            <section class="record-card image-card combined-image-card receiver-image-card receiver-content-card"
+                aria-labelledby="imageReceiveTitle" data-align-group="image">
+                <div class="record-card-top">
+                    <div>
+                        <p class="section-kicker">RECEIVED IMAGE</p>
+                        <h2 id="imageReceiveTitle">A picture arrived</h2>
                     </div>
-
-                    <section class="record-card" aria-labelledby="ttsTitle">
-                        <div class="record-card-top">
-                            <div>
-                                <p class="section-kicker">SPEECH SYNTHESIS</p>
-                                <h2 id="ttsTitle">Listen to the message</h2>
-                            </div>
-                        </div>
-
-                        <p class="transcript-preview-label">RECEIVED TRANSCRIPT</p>
-                        <p class="transcript-preview" id="receivedTranscript" aria-live="polite">
-                            Waiting for a voice message…
-                        </p>
-
-                        <div class="tts-controls">
-                            <div class="tts-buttons">
-                                <button id="playButton" class="button button-primary" type="button" disabled>
-                                    <span aria-hidden="true">▶</span> Play speech
-                                </button>
-                                <button id="stopButton" class="button button-secondary" type="button" disabled>
-                                    <span aria-hidden="true">■</span> Stop
-                                </button>
-                            </div>
-
-                            <div class="tts-field">
-                                <label class="field-label" for="voiceSelect">VOICE</label>
-                                <select id="voiceSelect" class="tts-select"></select>
-                            </div>
-
-                            <div class="tts-field">
-                                <label class="field-label" for="rateInput">
-                                    RATE <span class="tts-value" id="rateValue">1.0</span>
-                                </label>
-                                <input id="rateInput" type="range" min="0.5" max="2" step="0.1" value="1">
-                            </div>
-
-                            <div class="tts-field">
-                                <label class="field-label" for="pitchInput">
-                                    PITCH <span class="tts-value" id="pitchValue">1.0</span>
-                                </label>
-                                <input id="pitchInput" type="range" min="0" max="2" step="0.1" value="1">
-                            </div>
-
-                            <div class="tts-original" id="originalRecordingWrap" hidden>
-                                <p class="field-label">ORIGINAL RECORDING</p>
-                                <audio id="originalAudio" class="audio-preview" controls></audio>
-                            </div>
-                        </div>
-
-                        <p class="dialog-error" id="ttsError" role="alert"></p>
-                    </section>
-
-                    <section class="record-card image-card" aria-labelledby="imageReceiveTitle">
-                        <div class="record-card-top">
-                            <div>
-                                <p class="section-kicker">RECEIVED IMAGE</p>
-                                <h2 id="imageReceiveTitle">A picture arrived</h2>
-                            </div>
-                        </div>
-                        <div class="received-image-wrap" id="receivedImageWrap" hidden>
-                            <img id="receivedImage">
-                            <p class="selected-file" id="receivedImageMeta"></p>
-                        </div>
-                        <p class="transcript-preview" id="imagePlaceholder">
-                            Waiting for an image…
-                        </p>
-                    </section>
-
-                    <section class="record-card" aria-labelledby="logTitle">
-                        <div class="record-card-top">
-                            <div>
-                                <p class="section-kicker">ACTIVITY LOG</p>
-                                <h2 id="logTitle">Network events</h2>
-                            </div>
-                            <span class="record-time" id="statsSummary">0 messages</span>
-                        </div>
-                        <ul class="message-log" id="messageLog" aria-live="polite"></ul>
-                        <p class="transcript-preview" id="statsDetail">
-                            Latency and throughput will appear here as messages arrive.
-                        </p>
-                        <p class="stats-legend">
-                            <strong>Reading the stats:</strong>
-                            <span class="stats-legend-seg">total received</span> ·
-                            <span class="stats-legend-seg">≈ throughput (KB/s over the sample window)</span> ·
-                            <span class="stats-legend-seg">avg end-to-end latency (ms)</span>.
-                            Each log line reads:
-                            <code>type · filename · size [· chars] · E2E latency</code>.
-                            A <em>clock skew</em> note means the sender and receiver clocks disagree
-                            (usually different machines).
-                        </p>
-                    </section>
                 </div>
+                <div class="combined-image-content receiver-image-content">
+                    <div class="received-image-wrap" id="receivedImageWrap" hidden>
+                        <img id="receivedImage">
+                        <p class="selected-file" id="receivedImageMeta"></p>
+                    </div>
+                    <p class="transcript-preview" id="imagePlaceholder">
+                        Waiting for an image…
+                    </p>
+                </div>
+            </section>
+
+            <!-- ======== ROW 4 · Network events: start on the sender, end on the receiver ======== -->
+            <section class="record-card pane-gap-bottom" aria-labelledby="sentLogTitle" data-align-group="events">
+                <div class="record-card-top">
+                    <div>
+                        <p class="section-kicker">SENT EVENTS</p>
+                        <h2 id="sentLogTitle">Network events</h2>
+                    </div>
+                    <span class="record-time" id="sentStatsSummary">0 sent</span>
+                </div>
+                <ul class="message-log" id="sentLog" aria-live="polite"></ul>
+                <p class="transcript-preview" id="sentStatsDetail">
+                    Every outgoing message is logged here the moment it leaves this side.
+                </p>
+                <p class="stats-legend">
+                    <strong>Reading the log:</strong>
+                    <span class="stats-legend-seg">each line shows the message type as it was sent</span> ·
+                    <span class="stats-legend-seg">filename (voice or image)</span> ·
+                    <span class="stats-legend-seg">payload size</span>.
+                    The receiver side logs the same messages again when they arrive, together with
+                    end-to-end latency.
+                </p>
+            </section>
+
+            <section class="record-card pane-gap-bottom receiver-content-card" aria-labelledby="logTitle"
+                data-align-group="events">
+                <div class="record-card-top">
+                    <div>
+                        <p class="section-kicker">RECEIVED EVENTS</p>
+                        <h2 id="logTitle">Network events</h2>
+                    </div>
+                    <span class="record-time" id="statsSummary">0 received</span>
+                </div>
+                <ul class="message-log" id="messageLog" aria-live="polite"></ul>
+                <p class="transcript-preview" id="statsDetail">
+                    Latency and throughput will appear here as messages arrive.
+                </p>
+                <p class="stats-legend">
+                    <strong>Reading the stats:</strong>
+                    <span class="stats-legend-seg">total received</span> ·
+                    <span class="stats-legend-seg">≈ throughput (KB/s over the sample window)</span> ·
+                    <span class="stats-legend-seg">avg end-to-end latency (ms)</span>.
+                    Each log line reads:
+                    <code>type · filename · size [· chars] · E2E latency</code>.
+                    A <em>clock skew</em> note means the sender and receiver clocks disagree
+                    (usually different machines).
+                </p>
             </section>
         </main>
     </div>

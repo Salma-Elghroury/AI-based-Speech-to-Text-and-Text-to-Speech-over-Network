@@ -48,7 +48,9 @@ Open [http://localhost:5500](http://localhost:5500) (or the URL shown by Live Se
 - **Send an image** — select and send one image.
 - **Open receiver** — a second browser window that listens for incoming messages, reads the transcript aloud, and displays images.
 
-To try the full flow, open **two browser windows**: one acting as the sender and one as the receiver.
+The combined workspace displays each sent message in its receiver pane. For the
+separate flow, open **two browser windows**: one acting as the sender and one
+as the receiver.
 
 To stop either server, press `Ctrl+C` in its terminal.
 
@@ -57,12 +59,12 @@ To stop either server, press `Ctrl+C` in its terminal.
 - Audio is recorded with the browser's `MediaRecorder` API and sent only after you confirm in the review dialog.
 - Live transcription uses the browser's Web Speech API and depends on browser support and microphone permission. If live transcription is unavailable, you can type the transcript into the review dialog.
 - Image selection accepts one image at a time. The page displays a file-added confirmation instead of a preview; press **Send image** to transmit it.
-- The sender connects to `ws://<page-host>:8080` over HTTP and `wss://<page-host>:8080` over HTTPS. The included server is plain WebSocket (not TLS); an HTTPS deployment needs a TLS-enabled WebSocket endpoint.
+- Sender, image, and receiver sockets connect to `ws://<page-host>:8080` over HTTP and `wss://<page-host>:8080` over HTTPS, and retry every two seconds if the connection drops. The included server is plain WebSocket (not TLS); an HTTPS deployment needs a TLS-enabled WebSocket endpoint.
 - Each outgoing packet includes a `sentAt` timestamp (milliseconds since epoch) so the receiver can compute end-to-end latency.
 
 ## Receiver features and browser support
 
-- Connects to the same WebSocket server, reconnecting automatically every two seconds if the connection drops.
+- Uses the shared WebSocket helper in `common.js`, which automatically reconnects every two seconds if the connection drops.
 - For every `audio` message:
   - Displays the received transcript.
   - Provides **Play speech**, **Stop**, a **voice** selector, and **rate** and **pitch** sliders using the Speech Synthesis Web API.
@@ -100,7 +102,9 @@ Image:
 }
 ```
 
-The included server logs incoming messages and forwards each message to other connected WebSocket clients. It does not save messages.
+The included server logs incoming messages and forwards each message to every
+other connected WebSocket client, including the receiver socket in the combined
+workspace. It does not save messages.
 
 ## Project structure
 
