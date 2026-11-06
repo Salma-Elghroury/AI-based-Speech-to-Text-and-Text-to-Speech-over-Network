@@ -1,4 +1,4 @@
-import { blobToBase64, connectWebSocket } from "./sender-common.js";
+import { blobToBase64, connectWebSocket } from "./common.js";
 
 const socket = connectWebSocket();
 const recordButton = document.getElementById("recordButton");
@@ -196,6 +196,7 @@ reviewForm.addEventListener("submit", async (event) => {
             filename: `recording-${Date.now()}.${extension}`,
             mimeType,
             transcript: transcriptInput.value.trim(),
+            sentAt: Date.now(),
             data: await blobToBase64(audioBlob)
         };
         socket.send(JSON.stringify(packet));
@@ -206,7 +207,7 @@ reviewForm.addEventListener("submit", async (event) => {
         dialogError.textContent = "Could not send your message. Please try again.";
     } finally {
         sendAudioButton.disabled = false;
-        sendAudioButton.innerHTML = 'Send message <span aria-hidden="true">↗</span>';
+        sendAudioButton.innerHTML = 'Send message';
     }
 });
 

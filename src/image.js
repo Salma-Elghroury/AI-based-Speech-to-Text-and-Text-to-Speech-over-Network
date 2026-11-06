@@ -30,7 +30,7 @@ function selectImage(files) {
 
     selectedImage = file;
     imageSent = false;
-    sendImageButton.innerHTML = 'Send image <span aria-hidden="true">↗</span>';
+    sendImageButton.innerHTML = 'Send image';
     dropzone.hidden = true;
     uploadConfirmation.hidden = false;
     selectedFile.textContent = `${file.name} · ${(file.size / (1024 * 1024)).toFixed(2)} MB`;
@@ -72,6 +72,7 @@ sendImageButton.addEventListener("click", async () => {
             type: "image",
             filename: selectedImage.name,
             mimeType: selectedImage.type,
+            sentAt: Date.now(),
             data: await blobToBase64(selectedImage)
         };
         socket.send(JSON.stringify(packet));
@@ -83,6 +84,6 @@ sendImageButton.addEventListener("click", async () => {
         imageError.textContent = "Could not send your image. Please try again.";
     } finally {
         sendImageButton.disabled = !selectedImage || imageSent;
-        if (!imageSent) sendImageButton.innerHTML = 'Send image <span aria-hidden="true">↗</span>';
+        if (!imageSent) sendImageButton.innerHTML = 'Send image';
     }
 });
