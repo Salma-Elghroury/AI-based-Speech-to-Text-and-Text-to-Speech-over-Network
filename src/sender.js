@@ -1,6 +1,7 @@
 import { blobToBase64, connectWebSocket } from "./common.js";
 
-const socket = connectWebSocket();
+const senderConnectionStatus = document.getElementById("senderConnectionStatus");
+const senderConnectionLabel = document.getElementById("senderConnectionLabel");
 const recordButton = document.getElementById("recordButton");
 const recordButtonText = document.getElementById("recordButtonText");
 const recordHint = document.getElementById("recordHint");
@@ -23,6 +24,8 @@ const sendImageButton = document.getElementById("sendImageButton");
 const changeImageButton = document.getElementById("changeImageButton");
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let socket;
+let reconnectTimer;
 let recorder;
 let recognition;
 let mediaStream;
@@ -35,6 +38,46 @@ let transcriptWasEdited = false;
 
 let selectedImage;
 let imageSent = false;
+
+function setSenderStatus(state, detail) {
+    senderConnectionStatus.dataset.state = state;
+    senderConnectionLabel.textContent = detail ?? (
+        state === "connected" ? "Connected to relay" :
+        state === "connecting" ? "Connecting…" :
+        state === "disconnected" ? "Disconnected — retrying…" :
+        "Connection error"
+    );
+}
+
+function scheduleReconnect() {
+    window.clearTimeout(reconnectTimer);
+    reconnectTimer = window.setTimeout(connect, 2000);
+}
+
+function connect() {
+    if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+        return;
+    }
+
+    setSenderStatus("connecting");
+    try {
+        socket = connectWebSocket();
+    } catch (error) {
+        console.error("Could not create socket:", error);
+        setSenderStatus("error", "Could not open socket — retrying…");
+        scheduleReconnect();
+        return;
+    }
+
+    socket.addEventListener("open", () => setSenderStatus("connected"));
+    socket.addEventListener("close", () => {
+        setSenderStatus("disconnected");
+        scheduleReconnect();
+    });
+    socket.addEventListener("error", () => {
+        setSenderStatus("error", "Connection error — retrying…");
+    });
+}
 
 function updateRecordingTime() {
     const elapsed = Math.floor((Date.now() - recordingStartedAt) / 1000);
@@ -311,3 +354,5 @@ sendImageButton.addEventListener("click", async () => {
         if (!imageSent) sendImageButton.innerHTML = 'Send image';
     }
 });
+
+connect();

@@ -629,6 +629,8 @@ h1 {
     margin-top: var(--space-3);
 }
 
+.received-image-wrap[hidden] { display: none; }
+
 .received-image-wrap img {
     width: 100%;
     max-height: 480px;
