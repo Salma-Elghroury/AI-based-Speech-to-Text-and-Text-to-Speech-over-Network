@@ -15,8 +15,6 @@ const rateInput = document.getElementById("rateInput");
 const rateValue = document.getElementById("rateValue");
 const pitchInput = document.getElementById("pitchInput");
 const pitchValue = document.getElementById("pitchValue");
-const originalRecordingWrap = document.getElementById("originalRecordingWrap");
-const originalAudio = document.getElementById("originalAudio");
 const ttsError = document.getElementById("ttsError");
 const receivedImageWrap = document.getElementById("receivedImageWrap");
 const receivedImage = document.getElementById("receivedImage");
@@ -32,7 +30,6 @@ const speechSupported = "speechSynthesis" in window && "SpeechSynthesisUtterance
 let currentTranscript = "";
 let currentVoice = null;
 let userChoseVoice = false;
-let lastOriginalAudioUrl = null;
 let lastImageBlobUrl = null;
 
 const LATENCY_SAMPLE_CAP = 200;
@@ -142,19 +139,9 @@ function handleAudioPacket(packet, latencyMs) {
             ? ""
             : "Speech synthesis is not supported in this browser.";
     } else {
-        receivedTranscript.textContent =
-            "(Sender did not transcribe this recording — play the original below.)";
+        receivedTranscript.textContent = "(No transcript was included with this message.)";
         playButton.disabled = true;
         stopButton.disabled = true;
-    }
-
-    if (packet.data && packet.mimeType) {
-        if (lastOriginalAudioUrl) URL.revokeObjectURL(lastOriginalAudioUrl);
-        lastOriginalAudioUrl = base64ToBlobUrl(packet.data, packet.mimeType);
-        originalAudio.src = lastOriginalAudioUrl;
-        originalRecordingWrap.hidden = false;
-    } else {
-        originalRecordingWrap.hidden = true;
     }
 
     const latencyText = latencyMs !== undefined
@@ -162,8 +149,7 @@ function handleAudioPacket(packet, latencyMs) {
         : "";
     log(
         messageLog,
-        `audio · ${packet.filename || "recording"} · ` +
-        `${currentTranscript.length} chars · ${formatBytes(packet.data)}${latencyText}`
+        `audio · transcript · ${currentTranscript.length} chars${latencyText}`
     );
 }
 
@@ -290,7 +276,6 @@ function updateStats() {
 }
 
 window.addEventListener("pagehide", () => {
-    if (lastOriginalAudioUrl) URL.revokeObjectURL(lastOriginalAudioUrl);
     if (lastImageBlobUrl) URL.revokeObjectURL(lastImageBlobUrl);
 });
 

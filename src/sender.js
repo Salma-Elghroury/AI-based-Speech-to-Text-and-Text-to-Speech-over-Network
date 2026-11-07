@@ -227,7 +227,7 @@ transcriptInput.addEventListener("input", () => {
     transcriptWasEdited = true;
 });
 
-reviewForm.addEventListener("submit", async (event) => {
+reviewForm.addEventListener("submit", (event) => {
     event.preventDefault();
     dialogError.textContent = "";
 
@@ -243,21 +243,16 @@ reviewForm.addEventListener("submit", async (event) => {
     sendAudioButton.disabled = true;
     sendAudioButton.textContent = "Sending…";
     try {
-        const mimeType = audioBlob.type || "audio/webm";
-        const extension = mimeType.includes("ogg") ? "ogg" : mimeType.includes("mp4") ? "m4a" : "webm";
         const packet = {
             type: "audio",
-            filename: `recording-${Date.now()}.${extension}`,
-            mimeType,
             transcript: transcriptInput.value.trim(),
-            sentAt: Date.now(),
-            data: await blobToBase64(audioBlob)
+            sentAt: Date.now()
         };
         socket.send(JSON.stringify(packet));
-        recordHint.textContent = "Your audio message was sent.";
+        recordHint.textContent = "Your transcript was sent.";
         reviewDialog.close();
     } catch (error) {
-        console.error("Could not send audio message:", error);
+        console.error("Could not send transcript packet:", error);
         dialogError.textContent = "Could not send your message. Please try again.";
     } finally {
         sendAudioButton.disabled = false;
